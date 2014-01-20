@@ -26,6 +26,9 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+// FIXME: Debug only
+import static java.lang.System.out;
+
 /**
  * ZeroMQ JNI Bindings.
  * 
@@ -1318,19 +1321,25 @@ public class ZMQ {
          * @param min_port The minimum port in the range of ports to try.
          * @param max_port The maximum port in the range of ports to try.
          * @param max_tries The number of attempt to bind.
+	 * @return The port that was bound
          */
         public int bindToRandomPort(String addr, int min_port, int max_port, int max_tries) {
             int port;
             Random rand = new Random();
+	    int delta = max_port - min_port;
+	    out.println("Picking a 'random' port with a range of " + delta);
+
             for (int i = 0; i < max_tries; i++) {
-                port = rand.nextInt(max_port - min_port + 1) + min_port;
+                port = rand.nextInt(delta + 1) + min_port;
                 try {
                     bind(String.format("%s:%s", addr, port));
+		    out.println("Between " + min_port + " and " + max_port + " chose " + port);
                     return port;
                 } catch (ZMQException e) {
                     if (e.getErrorCode() != ZMQ.EADDRINUSE()) {
                         throw e;
                     }
+		    // Q: Does this next line have any purpose?
                     continue;
                 }
             }

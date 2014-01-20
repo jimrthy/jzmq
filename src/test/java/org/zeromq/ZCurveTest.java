@@ -54,7 +54,7 @@ public class ZCurveTest {
 	out.println("Encoding");
 	String encoded = ZCurveKeyPair.Z85Encode(publicKey);
 	int length = encoded.length();
-	out.println("Decoding '" + encoded + "'\n which is " + length + " bytes long)");
+	out.println("Decoding '" + encoded + "'\n(which is " + length + " bytes long)");
 	byte[] decoded = ZCurveKeyPair.Z85Decode(encoded);
 	if(decoded != null) {
 	    out.println("Successfully decoded *something*:\n'" + new String(decoded) + "'"); 
