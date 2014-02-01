@@ -151,14 +151,14 @@ public class ZMQ {
     }
 
     /**
-     * @return Major version number of the ZMQ library.
+     * @return Minor version number of the ZMQ library.
      */
     public static int getMinorVersion() {
         return version_minor();
     }
 
     /**
-     * @return Major version number of the ZMQ library.
+     * @return Patch version number of the ZMQ library.
      */
     public static int getPatchVersion() {
         return version_patch();
