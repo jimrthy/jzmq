@@ -9,11 +9,11 @@ import org.junit.Test;
 /**
  * @author James Gatannah
  */
-public class ZMQCurveTest {
+public class ZCurveTest {
 
     @Test
     public void testKeyCenversion() {
-	CurveKeyPair keys = ZMQ.curveKeyPairFactory();
+	ZMQ.CurveKeyPair keys = ZMQ.curveKeyPairFactory();
 	byte[] publicKey = keys.publicKey;
 
 	String encoded = ZMQ.Z85Encode(publicKey);
@@ -28,8 +28,8 @@ public class ZMQCurveTest {
 
 	// No encryption before version 4
         if (ZMQ.getFullVersion() >= ZMQ.make_version(4, 0, 0)) {
-	    CurveKeyPair clientKeys = ZMQ.curveKeyPairFactory();
-	    CurveKeyPair serverKeys = ZMQ.curveKeyPairFactory();
+	    ZMQ.CurveKeyPair clientKeys = ZMQ.curveKeyPairFactory();
+	    ZMQ.CurveKeyPair serverKeys = ZMQ.curveKeyPairFactory();
 
 	    ZMQ.Context context = ZMQ.context(1);
 
