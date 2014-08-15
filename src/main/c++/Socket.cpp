@@ -48,20 +48,17 @@ Java_org_zeromq_ZMQ_00024Socket_nativeInit (JNIEnv *env, jclass c)
     socketHandleFID = env->GetFieldID(c, "socketHandle", "J");
 }
 
-static inline
-void *get_socket (JNIEnv *env, jobject obj)
+inline void *get_socket (JNIEnv *env, jobject obj)
 {
     return (void*) env->GetLongField (obj, socketHandleFID);
 }
 
-static inline
-void put_socket (JNIEnv *env, jobject obj, void *s)
+inline void put_socket (JNIEnv *env, jobject obj, void *s)
 {
     env->SetLongField (obj, socketHandleFID, (jlong) s);
 }
 
-static inline
-void *fetch_context (JNIEnv *env, jobject context)
+inline void *fetch_context (JNIEnv *env, jobject context)
 {
     return (void*) env->CallLongMethod (context, contextHandleMID);
 }
@@ -184,6 +181,14 @@ Java_org_zeromq_ZMQ_00024Socket_getLongSockopt (JNIEnv *env, jobject obj, jint o
     case ZMQ_TCP_KEEPALIVE_INTVL:
     case ZMQ_IPV4ONLY:
 #endif
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,2,0) && ZMQ_VERSION < ZMQ_MAKE_VERSION(4,0,0)
+    case ZMQ_DELAY_ATTACH_ON_CONNECT:
+#endif
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,0,0)
+    case ZMQ_CONFLATE:
+    case ZMQ_PLAIN_SERVER:
+    case ZMQ_IMMEDIATE:
+#endif
     case ZMQ_AFFINITY:
     case ZMQ_RATE:
     case ZMQ_RECOVERY_IVL:
@@ -195,22 +200,22 @@ Java_org_zeromq_ZMQ_00024Socket_getLongSockopt (JNIEnv *env, jobject obj, jint o
             jlong ret = 0;
             int rc = 0;
             int err = 0;
-#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,2,0)
-            if(
-                   (option == ZMQ_TCP_KEEPALIVE)
-                || (option == ZMQ_TCP_KEEPALIVE_IDLE)
-                || (option == ZMQ_TCP_KEEPALIVE_CNT)
-                || (option == ZMQ_TCP_KEEPALIVE_INTVL)
-                || (option == ZMQ_IPV4ONLY)
+            if (
+                   (option == ZMQ_AFFINITY)
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(2,1,0)
+                || (option == ZMQ_FD)
+#endif
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,0,0)
+                || (option == ZMQ_MAXMSGSIZE)
+#endif
             ) {
-                int optval = 0;
+                int64_t optval = 0; 
                 size_t optvallen = sizeof(optval);
                 rc = zmq_getsockopt (s, option, &optval, &optvallen);
                 ret = (jlong) optval;
             } else
-#endif
             {
-                uint64_t optval = 0; 
+                int optval = 0;
                 size_t optvallen = sizeof(optval);
                 rc = zmq_getsockopt (s, option, &optval, &optvallen);
                 ret = (jlong) optval;
@@ -238,6 +243,10 @@ JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZMQ_00024Socket_getBytesSockopt (JN
 {
     switch (option) {
     case ZMQ_IDENTITY:
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,0,0)
+    case ZMQ_PLAIN_USERNAME:
+    case ZMQ_PLAIN_PASSWORD:
+#endif
         {
             void *s = get_socket (env, obj);
 
@@ -305,17 +314,30 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setLongSockopt (JNIEnv *e
     case ZMQ_IPV4ONLY:
     case ZMQ_ROUTER_MANDATORY:
 #endif
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,2,0) && ZMQ_VERSION < ZMQ_MAKE_VERSION(4,0,0)
+    case ZMQ_DELAY_ATTACH_ON_CONNECT:
+#endif
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,2,2)
     case ZMQ_XPUB_VERBOSE:
 #endif
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,0,0)
+    case ZMQ_CONFLATE:
     case ZMQ_CURVE_SERVER:
+    case ZMQ_PLAIN_SERVER:
+    case ZMQ_IMMEDIATE:
+    case ZMQ_REQ_RELAXED:
+    case ZMQ_REQ_CORRELATE:
+    case ZMQ_PROBE_ROUTER:
 #endif
     case ZMQ_AFFINITY:
     case ZMQ_RATE:
     case ZMQ_RECOVERY_IVL:
     case ZMQ_SNDBUF:
     case ZMQ_RCVBUF:
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,1,0)
+    case ZMQ_GSSAPI_SERVER:
+    case ZMQ_GSSAPI_PLAINTEXT:
+#endif
         {
             void *s = get_socket (env, obj);
             int rc = 0;
@@ -341,6 +363,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setLongSockopt (JNIEnv *e
                 || (option == ZMQ_TCP_KEEPALIVE_INTVL)
                 || (option == ZMQ_IPV4ONLY)
                 || (option == ZMQ_ROUTER_MANDATORY)
+                || (option == ZMQ_DELAY_ATTACH_ON_CONNECT)
 #endif
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,2,2)
                 || (option == ZMQ_XPUB_VERBOSE)
@@ -356,9 +379,18 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setLongSockopt (JNIEnv *e
 #endif
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,0,0)
 		|| (option == ZMQ_CURVE_SERVER)
+                || (option == ZMQ_CONFLATE)
+                || (option == ZMQ_PLAIN_SERVER)
+                || (option == ZMQ_IMMEDIATE)
+                || (option == ZMQ_REQ_RELAXED)
+                || (option == ZMQ_REQ_CORRELATE)
+                || (option == ZMQ_PROBE_ROUTER)
 #endif
-
-#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(2,1,0)    
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,1,0)
+                || (option == ZMQ_GSSAPI_SERVER)
+                || (option == ZMQ_GSSAPI_PLAINTEXT)
+#endif
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(2,1,0)
             ) {
                 int ival = (int) value;
                 size_t optvallen = sizeof(ival);
@@ -395,11 +427,17 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setBytesSockopt (JNIEnv *
     case ZMQ_IDENTITY:
     case ZMQ_SUBSCRIBE:
     case ZMQ_UNSUBSCRIBE:
-#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,0,0)    
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,0,0)
     case ZMQ_ZAP_DOMAIN:
     case ZMQ_CURVE_SECRETKEY:
     case ZMQ_CURVE_PUBLICKEY:
     case ZMQ_CURVE_SERVERKEY:
+    case ZMQ_PLAIN_USERNAME:
+    case ZMQ_PLAIN_PASSWORD:
+#endif
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,1,0)
+    case ZMQ_GSSAPI_PRINCIPAL:
+    case ZMQ_GSSAPI_SERVICE_PRINCIPAL:
 #endif
         {
             if (value == NULL) {
@@ -674,15 +712,9 @@ JNIEXPORT jboolean JNICALL Java_org_zeromq_ZMQ_00024Socket_send (JNIEnv *env,
         raise_exception (env, err);
         return JNI_FALSE;
     }
-
-    jbyte *data = env->GetByteArrayElements (msg, 0);
-    if (! data) {
-        raise_exception (env, EINVAL);
-        return JNI_FALSE;
-    }
-
-    memcpy (zmq_msg_data (&message), data + offset, length);
-    env->ReleaseByteArrayElements (msg, data, 0);
+    
+    void* pd = zmq_msg_data (&message);
+    env->GetByteArrayRegion(msg, offset, length, (jbyte*) pd);
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,0,0)
     rc = zmq_sendmsg (s, &message, flags);
 #else
@@ -749,7 +781,7 @@ Java_org_zeromq_ZMQ_00024Socket_recvZeroCopy (JNIEnv *env,
     }
     if(rc == -1) {
         int err = zmq_errno();
-        if(err == EAGAIN) {
+        if(err != EAGAIN) {
             raise_exception (env, err);
             return 0;
         }
@@ -778,12 +810,12 @@ Java_org_zeromq_ZMQ_00024Socket_recvByteBuffer (JNIEnv *env, jobject obj, jobjec
     int read = zmq_recv(sock, buf + pos, rem, flags);
     if (read > 0) {
         read = read > rem ? rem : read;
-        env->CallVoidMethod(buffer, setPositionMID, read + pos);
+        env->CallObjectMethod(buffer, setPositionMID, read + pos);
         return read;
     }
     else if(read == -1) {
         int err = zmq_errno();
-        if(err == EAGAIN) {
+        if(err != EAGAIN) {
             raise_exception (env, err);
             return 0;
         }
@@ -855,4 +887,29 @@ JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZMQ_00024Socket_recv__I (JNIEnv *en
         return NULL;
     } 
     return data;
+}
+
+JNIEXPORT jboolean JNICALL Java_org_zeromq_ZMQ_00024Socket_monitor (JNIEnv *env,
+                                                                    jobject obj,
+                                                                    jstring addr,
+                                                                    jint events)
+{
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,2,0)
+    void *socket = get_socket (env, obj);
+
+    const char *c_addr = addr ? env->GetStringUTFChars (addr, NULL) : NULL;
+
+    int rc = zmq_socket_monitor(socket , c_addr, events);
+    int err = rc < 0 ? zmq_errno() : 0;
+
+    env->ReleaseStringUTFChars (addr, c_addr);
+
+    if (rc < 0) {
+        raise_exception (env, err);
+        return JNI_FALSE;
+    }
+    return JNI_TRUE;
+#else
+    return JNI_FALSE;
+#endif
 }
