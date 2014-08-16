@@ -5,6 +5,7 @@ JZMQ_JAVA_FILES = \
 	../java/org/zeromq/EmbeddedLibraryTools.java \
 	../java/org/zeromq/ZAuth.java \
 	../java/org/zeromq/ZContext.java \
+	../java/org/zeromq/ZCurveKeyPair.java \
 	../java/org/zeromq/ZDispatcher.java \
 	../java/org/zeromq/ZFrame.java \
 	../java/org/zeromq/ZLoop.java \
@@ -75,6 +76,7 @@ CLEANFILES = \
 
 $(JZMQ_H_FILES): $(jarfile)
 	$(CLASSPATH_ENV) $(JAVAH) -jni -classpath . org.zeromq.ZMQ
+	$(CLASSPATH_ENV) $(JAVAH) -jni -classpath . org.zeromq.ZCurveKeyPair
 
 $(srcdir)/ZMQ.cpp: \
 	$(JZMQ_H_FILES) \

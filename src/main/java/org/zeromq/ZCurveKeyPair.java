@@ -34,7 +34,7 @@ public class ZCurveKeyPair {
     /**
      * Build a keypair from known public/private keys
      */
-    ZCurveKeyPair(byte[] pub, byte[] priv) {
+    public ZCurveKeyPair(byte[] pub, byte[] priv) {
 	publicKey = pub;
 	privateKey = priv;
     }

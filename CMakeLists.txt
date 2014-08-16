@@ -81,7 +81,7 @@ set(java-classes
 	org/zeromq/EmbeddedLibraryTools.class
 	org/zeromq/App.class
 	org/zeromq/ZContext.class
-	org/zeromq/ZCurvePair.class
+	org/zeromq/ZCurveKeyPair.class
 	org/zeromq/ZDispatcher.class
 	org/zeromq/ZDispatcher$$1.class
 	org/zeromq/ZDispatcher$$SocketDispatcher$$1.class
