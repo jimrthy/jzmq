@@ -162,8 +162,7 @@ public class ZFrame
     }
 
     /**
-     * Returns frame data as a printable hex string
-     * @return
+     * @return frame data as a printable hex string
      */
     public String strhex()
     {

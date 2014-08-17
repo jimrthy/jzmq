@@ -42,6 +42,7 @@ Java_org_zeromq_ZMQ_00024Context_construct (JNIEnv *env, jobject obj, jint io_th
     if (c)
         return;
 
+    // N.B. This is deprecated.
     c = zmq_init (io_threads);
     int err = zmq_errno();
     put_context (env, obj, c);

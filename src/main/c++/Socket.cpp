@@ -18,6 +18,7 @@
 */
 
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
 #include <zmq.h>
 
@@ -441,6 +442,8 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setBytesSockopt (JNIEnv *
 #endif
         {
             if (value == NULL) {
+	        printf("Trying to set option %d to NULL\n", option);
+	        fflush(stdout);
                 raise_exception (env, EINVAL);
                 return;
             }
@@ -449,20 +452,27 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setBytesSockopt (JNIEnv *
 
             jbyte *optval = env->GetByteArrayElements (value, NULL);
             if (! optval) {
+                printf("Trying to set %d to an empty byte array\n", option);
+	        fflush(stdout);
                 raise_exception (env, EINVAL);
                 return;
             }
             size_t optvallen = env->GetArrayLength (value);
+	    printf("Setting option # %d with %lu bytes on a socket\n", option, optvallen);
+	      fflush(stdout);
             int rc = zmq_setsockopt (s, option, optval, optvallen);
             int err = zmq_errno();
             env->ReleaseByteArrayElements (value, optval, 0);
             if (rc != 0) {
+	      printf("Failed to set option %d, length %lu, to '%s': %d\n", option, optvallen, value, err);
                 raise_exception (env, err);
             }
-
+	    fflush(stdout);
             return;
         }
     default:
+      printf("Trying to set unknown option: %d\n", option);
+      fflush(stdout);
         raise_exception (env, EINVAL);
         return;
     }
@@ -509,24 +519,27 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_unbind (JNIEnv *env,
     void *s = get_socket (env, obj);
 
     if (addr == NULL) {
+      printf("Null address string\n");
         raise_exception (env, EINVAL);
         return;
     }
 
     const char *c_addr = env->GetStringUTFChars (addr, NULL);
     if (c_addr == NULL) {
+      printf("Empty address string\n");
         raise_exception (env, EINVAL);
         return;
     }
 
     int rc = zmq_unbind (s, c_addr);
     int err = zmq_errno();
-    env->ReleaseStringUTFChars (addr, c_addr);
 
     if (rc != 0) {
+      printf("0mq returned %d (ERRNO %d) trying to unbind '%s'\n", rc, err, c_addr);
         raise_exception (env, err);
-        return;
     }
+    env->ReleaseStringUTFChars (addr, c_addr);
+
 #endif
 }
 
