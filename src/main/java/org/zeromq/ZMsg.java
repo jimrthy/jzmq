@@ -73,8 +73,8 @@ public class ZMsg implements Deque<ZFrame>
 
     /**
      * How big is this message?
-     * @return
-     * Return total number of bytes contained in all ZFrames in this ZMsg
+     * 
+     * @return number of bytes contained in all ZFrames in this ZMsg
      */
     public long contentSize()
     {
@@ -192,7 +192,8 @@ public class ZMsg implements Deque<ZFrame>
      * ZLoop class or ZMQ.Poller to check for socket input before receiving.
      * 
      * @param socket
-     * @param flag see ZMQ constants
+     * @param flag
+     *            see ZMQ constants
      * @return the ZMsg object or null of the recv was interrupted
      */
     public static ZMsg recvMsg(Socket socket, int flag)
