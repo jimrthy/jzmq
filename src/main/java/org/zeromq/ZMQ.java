@@ -1480,7 +1480,7 @@ public class ZMQ {
 	/**
 	 * Set the long-term public key associated with this server.
 	 * @param key The private one.
-	 * @see #makeIntoCurveServer(ZCurveKeyPair, byte[])
+	 * @see #makeIntoCurveServer(byte[])
 	 * @since 4.0.0
 	 */
 	public void setCurveServerPrivateKey(byte[] key) {

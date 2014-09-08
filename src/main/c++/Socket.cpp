@@ -326,7 +326,6 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setLongSockopt (JNIEnv *e
     case ZMQ_CURVE_SERVER:
     case ZMQ_PLAIN_SERVER:
     case ZMQ_IMMEDIATE:
-    case ZMQ_CURVE_SERVER:
     case ZMQ_REQ_RELAXED:
     case ZMQ_REQ_CORRELATE:
     case ZMQ_PROBE_ROUTER:
@@ -465,7 +464,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setBytesSockopt (JNIEnv *
             int err = zmq_errno();
             env->ReleaseByteArrayElements (value, optval, 0);
             if (rc != 0) {
-	      printf("Failed to set option %d, length %lu, to '%s': %d\n", option, optvallen, value, err);
+	      printf("Failed to set option %d, length %lu, to something: %d\n", option, optvallen, err);
                 raise_exception (env, err);
             }
 	    fflush(stdout);
