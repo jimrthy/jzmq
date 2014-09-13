@@ -56,6 +56,12 @@ read_msg(JNIEnv *env, void *socket, zmq_msg_t *msg, int flags)
 JNIEXPORT jobject JNICALL
 Java_org_zeromq_ZMQ_00024Event_recv (JNIEnv *env, jclass cls, jlong socket, jint flags)
 {
+#if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,1,0)
+  // This seems to have recently been broken.
+  // As in: the entire zmq_event_t struct seems to be gone.
+  // TODO: Figure out how to handle this
+  return NULL;
+#else
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,2,2)
     zmq_event_t event;
     zmq_msg_t event_msg;
@@ -145,4 +151,5 @@ Java_org_zeromq_ZMQ_00024Event_recv (JNIEnv *env, jclass cls, jlong socket, jint
 #else
     return NULL;
 #endif // ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,2,2)
+#endif // ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,1,0)
 }
