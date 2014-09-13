@@ -1478,6 +1478,7 @@ public class ZMQ {
 	 * @param key The public one
 	 * @since 4.0.0
 	 */
+	public void makeIntoCurveServer(byte[] key) {
 	    setCurveServerKey(key);
 	}
 
