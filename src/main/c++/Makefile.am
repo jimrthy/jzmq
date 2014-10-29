@@ -87,7 +87,7 @@ JZMQ_CLASS_FILES = \
 	org/zeromq/ZThread.class
 
 $(jarfile):
-	$(JAVAC) -d . $(JZMQ_JAVA_FILES)
+	$(JAVAC) $(JAVACFLAGS) -d . $(JZMQ_JAVA_FILES)
 	$(JAR) cf $(JARFLAGS) $@ $(JZMQ_CLASS_FILES)
 
 jar_DATA = $(jarfile)
