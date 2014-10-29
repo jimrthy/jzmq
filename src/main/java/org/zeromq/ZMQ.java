@@ -1443,7 +1443,6 @@ public class ZMQ {
 	 * Flag the socket as a CURVE server
 	 * @param on true to make this plan to work as a server, false for clients
 	 * (defaults to client)
-	 * @see #setServerKey(long)
 	 * @see #makeIntoCurveServer(byte[])
 	 * Q: I this the version it was added to zmq, or to here?
 	 * @since 4.0.0
@@ -1456,13 +1455,11 @@ public class ZMQ {
 
 	/**
 	 * Set the long-term public key associated with the server.
-	 * Which could very well be this.
 	 * @param key The public one.
-	 * @see #makeIntoCurveServer(byte[])
 	 * @see #makeIntoCurveClient(ZCurveKeyPair, byte[])
 	 * @since 4.0.0
 	 */
-	public void setCurveServerKey(byte[] key) {
+	public void setCurveServerPublicKey(byte[] key) {
 	    if(ZMQ.version_full() >= ZMQ.make_version(4, 0, 0)) {
 		setBytesSockopt(CURVE_SERVER_KEY, key);
 	    }
@@ -1472,10 +1469,24 @@ public class ZMQ {
 	 * Make this into a CURVE-encrypted server
 	 * Really just a slightly higher-level convenience function around setting
 	 * the socket options manually.
-	 * @param key The public one
+	 * @param key The private one
 	 * @since 4.0.0
 	 */
-	    setCurveServerKey(key);
+	public void makeIntoCurveServer(byte[] key) {
+	    setCurveServer(true);
+	    setCurveServerPrivateKey(key);
+	}
+
+	/**
+	 * Set the long-term public key associated with this server.
+	 * @param key The private one.
+	 * @see #makeIntoCurveServer(byte[])
+	 * @since 4.0.0
+	 */
+	public void setCurveServerPrivateKey(byte[] key) {
+	    if(ZMQ.version_full() >= ZMQ.make_version(4, 0, 0)) {
+		setBytesSockopt(CURVE_SECRET_KEY, key);
+	    }	    
 	}
 
 	/**
@@ -1515,7 +1526,7 @@ public class ZMQ {
 		// Mostly redundant. But allow for socket re-use.
 		// TODO: Verify that that actually works.
 		//setCurveServer(false);
-		setCurveServerKey(serverKey);
+		setCurveServerPublicKey(serverKey);
 		setCurveClientPrivateKey(keyPair.privateKey);
 		setCurveClientPublicKey(keyPair.publicKey);
 	    }
@@ -2407,9 +2418,8 @@ public class ZMQ {
         }
 
         /**
-         * Get the address.
+         * @return Something's address.
          * For libzmq versions 3.2.x the address will be an empty string.
-         * @return 
          */
         public String getAddress() {
             return address;
