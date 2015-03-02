@@ -174,8 +174,9 @@ public class ZMsg implements Deque<ZFrame>
     }
 
     /**
-     * Receives message from socket. Does a blocking recv, if
-     * you want not to block then use the ZLoop class or ZMQ.Poller to check for socket input before receiving or
+     * Receives message from socket, returns ZMsg object or null if the recv was
+     * interrupted. Does a blocking recv, if you want not to block then use the
+     * ZLoop class or ZMQ.Poller to check for socket input before receiving or
      * recvMsg with flag ZMQ.DONTWAIT.
      * @param socket
      * @return ZMsg object or null if the recv was interrupted
@@ -189,10 +190,11 @@ public class ZMsg implements Deque<ZFrame>
      * Receives message from socket, returns ZMsg object or null if the recv was
      * interrupted. Does a blocking recv, if you want not to block then use the
      * ZLoop class or ZMQ.Poller to check for socket input before receiving.
+     * 
      * @param socket
      * @param flag
      *            see ZMQ constants
-     * @return
+     * @return the ZMsg object or null of the recv was interrupted
      */
     public static ZMsg recvMsg(Socket socket, int flag)
     {

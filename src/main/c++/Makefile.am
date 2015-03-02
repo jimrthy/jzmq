@@ -8,6 +8,7 @@ JZMQ_JAVA_FILES = \
 	../java/org/zeromq/EmbeddedLibraryTools.java \
 	../java/org/zeromq/ZAuth.java \
 	../java/org/zeromq/ZContext.java \
+	../java/org/zeromq/ZCurveKeyPair.java \
 	../java/org/zeromq/ZDispatcher.java \
 	../java/org/zeromq/ZFrame.java \
 	../java/org/zeromq/ZLoop.java \
@@ -49,7 +50,7 @@ JZMQ_CLASS_FILES = \
 	org/zeromq/ZAuth$$1.class \
 	org/zeromq/ZAuth$$ZAPRequest.class \
 	org/zeromq/ZAuth$$ZAuthAgent.class \
-	org/zeromq/Zauth.class \
+	org/zeromq/ZAuth.class \
 	org/zeromq/ZContext.class \
 	org/zeromq/ZCurveKeyPair.class \
 	org/zeromq/ZDispatcher.class \
@@ -72,12 +73,6 @@ JZMQ_CLASS_FILES = \
 	org/zeromq/ZMQ$$PollItem.class \
 	org/zeromq/ZMQ$$Poller.class \
 	org/zeromq/ZMQ$$Socket.class \
-	org/zeromq/.class \
-	org/zeromq/.class \
-	org/zeromq/.class \
-	org/zeromq/.class \
-	org/zeromq/.class \
-	org/zeromq/.class \
 	org/zeromq/ZMQException.class \
 	org/zeromq/ZMQForwarder.class \
 	org/zeromq/ZMQQueue.class \
