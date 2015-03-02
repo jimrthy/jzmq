@@ -63,7 +63,6 @@ Java_org_zeromq_ZMQ_00024Event_recv (JNIEnv *env, jclass cls, jlong socket, jint
   return NULL;
 #else
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(3,2,2)
-    zmq_event_t event;
     zmq_msg_t event_msg;
 
     // read event message
@@ -73,10 +72,12 @@ Java_org_zeromq_ZMQ_00024Event_recv (JNIEnv *env, jclass cls, jlong socket, jint
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,0,0)
     assert (zmq_msg_more(&event_msg) != 0);
 
-    // copy event data to event struct
+    uint16_t event;
+    int32_t value;
+    // copy event data 
     char *data = (char *) zmq_msg_data(&event_msg);
-    memcpy(&event.event, data, sizeof(event.event));
-    memcpy(&event.value, data + sizeof(event.event), sizeof(event.value));
+    memcpy(&event, data, sizeof(event));
+    memcpy(&value, data + sizeof(event), sizeof(value));
 
     if (zmq_msg_close(&event_msg) < 0) {
         raise_exception(env, zmq_errno());
@@ -109,10 +110,11 @@ Java_org_zeromq_ZMQ_00024Event_recv (JNIEnv *env, jclass cls, jlong socket, jint
         free(paddr);
     assert(address);
 
-    return env->NewObject(cls, constructor, event.event, event.value, address);
+    return env->NewObject(cls, constructor, event, value, address);
 #else
     assert (zmq_msg_more(&event_msg) == 0);
 
+    zmq_event_t event;
     // copy event data to event struct
     memcpy (&event, zmq_msg_data (&event_msg), sizeof(event));
 
