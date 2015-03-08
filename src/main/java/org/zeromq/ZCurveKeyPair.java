@@ -53,5 +53,13 @@ public class ZCurveKeyPair {
      * Convert Z85 printable text into its associated byte array
      */
     public static native byte[] Z85Decode (String s);
+
+    public byte[] getPublicKey() {
+      return publicKey;
+    }
+
+    public byte[] getPrivateKey() {
+      return publicKey;
+    }
 }
 
