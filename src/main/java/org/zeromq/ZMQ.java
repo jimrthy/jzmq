@@ -20,8 +20,8 @@ package org.zeromq;
 
 import java.io.Closeable;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.channels.SelectableChannel;
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -360,6 +360,8 @@ public class ZMQ {
 
     protected static native long ENOTSOCK();
 
+    protected static native long EAGAIN();
+
     private static native void run_proxy(Socket frontend, Socket backend, Socket capture);
 
     /**
@@ -393,7 +395,9 @@ public class ZMQ {
 
         ETERM(ETERM()),
 
-        ENOTSOCK(ENOTSOCK());
+        ENOTSOCK(ENOTSOCK()),
+
+        EAGAIN(EAGAIN());
 
         private final long code;
 
@@ -1382,6 +1386,69 @@ public class ZMQ {
         }
 
         /**
+         * Defines whether the socket will act as server for CURVE security.
+         *
+         * <p>True means the socket will act as CURVE server, while false means
+         * the socket will not act as CURVE server, and its security role
+         * then depends on other option settings. Setting this to false shall
+         * reset the socket security to NULL. When you set this you must also
+         * set the server's secret key using the {@link #setCurveSecretKey(byte[])}
+         * function.</p>
+         *
+         * A server socket does not need to know its own public key.
+         *
+         * @param isServer
+         */
+        public void setCurveServer(boolean isServer) {
+            if (ZMQ.version_full() >= ZMQ.make_version(4, 0, 0))
+                setLongSockopt(CURVE_SERVER, isServer ? 1L : 0L);
+        }
+
+        /**
+         * Sets the socket's long term public key.
+         *
+         * <p>You must set this on CURVE client sockets. You can provide the key
+         * as 32 binary bytes, or as a 40-character string encoded in the Z85
+         * encoding format and terminated in a null byte. The public key must
+         * always be used with the matching secret key.</p>
+         *
+         * @param key key to be used
+         */
+        public void setCurvePublicKey(byte[] key) {
+            if (ZMQ.version_full() >= ZMQ.make_version(4, 0, 0))
+                setBytesSockopt(CURVE_PUBLICKEY, key);
+        }
+
+        /**
+         * Sets the socket's long term secret key.
+         *
+         * <p>You must set this on both CURVE client and server sockets. You can
+         * provide the key as 32 binary bytes, or as a 40-character string
+         * encoded in the Z85 encoding format and terminated in a null byte.</p>
+         *
+         * @param key to be used
+         */
+        public void setCurveSecretKey(byte[] key) {
+            if (ZMQ.version_full() >= ZMQ.make_version(4, 0, 0))
+                setBytesSockopt(CURVE_SECRETKEY, key);
+        }
+
+        /**
+         * Sets the socket's long term server key.
+         *
+         * <p>You must set this on CURVE client sockets. You can provide the key
+         * as 32 binary bytes, or as a 40-character string encoded in the Z85
+         * encoding format and terminated in a null byte. This key must have
+         * been generated together with the server's secret key.</p>
+         *
+         * @param key to be used
+         */
+        public void setCurveServerKey(byte[] key) {
+            if (ZMQ.version_full() >= ZMQ.make_version(4, 0, 0))
+                setBytesSockopt(CURVE_SERVERKEY, key);
+        }
+
+        /**
          * Sets whether socket should keep only last received/to be sent message in its inbound/outbound queue. 
          *
          * @param conflate A value of false is the default which means socket preserves all messages with respect
@@ -1933,10 +2000,10 @@ public class ZMQ {
         private static final int PLAIN_SERVER = 44;
         private static final int PLAIN_USERNAME = 45;
         private static final int PLAIN_PASSWORD = 46;
-	private static final int CURVE_SERVER = 47;
-	private static final int CURVE_PUBLIC_KEY = 48;
-	private static final int CURVE_SECRET_KEY = 49;
-	private static final int CURVE_SERVER_KEY = 50;
+        private static final int CURVE_SERVER = 47;
+        private static final int CURVE_PUBLICKEY = 48;
+        private static final int CURVE_SECRETKEY = 49;
+        private static final int CURVE_SERVERKEY = 50;
         private static final int PROBE_ROUTER = 51;
         private static final int REQ_CORRELATE = 52;
         private static final int REQ_RELAXED = 53;
@@ -2440,5 +2507,53 @@ public class ZMQ {
         public static Event recv(Socket socket) throws ZMQException {
             return Event.recv(socket, 0);
         }
+    }
+
+    /**
+     * Class that interfaces the generation of CURVE key pairs
+     */
+    public static class Curve {
+        /**
+         * A container for a public and a corresponding secret key
+         */
+        public static class KeyPair {
+            public final String publicKey;
+            public final String secretKey;
+
+            public KeyPair(final String publicKey, final String secretKey) {
+                this.publicKey = publicKey;
+                this.secretKey = secretKey;
+            }
+        }
+
+        /**
+         * Returns a newly generated random keypair consisting of a public key
+         * and a secret key.
+         *
+         * <p>The keys are encoded using {@link #z85Encode}.</p>
+         *
+         * @return Randomly generated {@link KeyPair}
+         */
+        public native static KeyPair generateKeyPair();
+
+        /**
+         * The function shall decode given key encoded as Z85 string into byte array.
+         *
+         * <p>The decoding shall follow the ZMQ RFC 32 specification.</p>
+         *
+         * @param key Key to be decoded
+         * @return The resulting key as byte array
+         */
+        public native static byte[] z85Decode(String key);
+
+        /**
+         * The function shall encode the binary block specified into a string.
+         *
+         * <p>The encoding shall follow the ZMQ RFC 32 specification.</p>
+         *
+         * @param key Key to be encoded
+         * @return The resulting key as String in Z85
+         */
+        public native static String z85Encode(byte[] key);
     }
 }

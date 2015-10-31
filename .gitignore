@@ -77,3 +77,8 @@ perf/*.dll
 *.jar
 INSTALL
 .checkstyle
+javac_stamp
+javah_stamp
+.tags*
+*.sublime-project
+*.sublime-workspace

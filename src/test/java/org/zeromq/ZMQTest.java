@@ -1,20 +1,24 @@
 package org.zeromq;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.zeromq.ZMQ.Context;
+import org.zeromq.ZMQ.Event;
+import org.zeromq.ZMQ.Poller;
+import org.zeromq.ZMQ.Socket;
+
+import javax.xml.bind.DatatypeConverter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import org.zeromq.ZMQ.Context;
-import org.zeromq.ZMQ.Event;
-import org.zeromq.ZMQ.Poller;
-import org.zeromq.ZMQ.Socket;
 
 /**
  * @author Cliff Evans
@@ -865,5 +869,109 @@ public class ZMQTest {
         socket.close();
         monitor.close();
         context.term();
+    }
+
+    @Test
+    public void testCurveZ85Keys() {
+        if (ZMQ.getFullVersion() < ZMQ.makeVersion(4, 0, 0))
+            return;
+
+        final Charset utf8 = Charset.forName("UTF-8");
+        final String endpoint = "tcp://127.0.0.1:5000";
+
+        final ZMQ.Curve.KeyPair req_key = ZMQ.Curve.generateKeyPair();
+        final ZMQ.Curve.KeyPair rep_key = ZMQ.Curve.generateKeyPair();
+
+        final byte[] req_pk = req_key.publicKey.getBytes(utf8);
+        final byte[] req_sk = req_key.secretKey.getBytes(utf8);
+        final byte[] rep_pk = rep_key.publicKey.getBytes(utf8);
+        final byte[] rep_sk = rep_key.secretKey.getBytes(utf8);
+
+        ZMQ.Context context = ZMQ.context(1);
+
+        ZMQ.Socket rep = context.socket(ZMQ.REP);
+        rep.setCurveServer(true);
+        rep.setCurveSecretKey(rep_sk);
+        rep.bind(endpoint);
+
+        ZMQ.Socket req = context.socket(ZMQ.REQ);
+        req.setCurvePublicKey(req_pk);
+        req.setCurveSecretKey(req_sk);
+        req.setCurveServerKey(rep_pk);
+        req.connect(endpoint);
+
+        final String sent = "Hello World";
+        req.send(sent);
+        final String received = rep.recvStr(utf8);
+        assertEquals(sent, received);
+
+        req.close();
+        rep.close();
+        context.term();
+    }
+
+    @Test
+    public void testCurveBinaryKeys() {
+        if (ZMQ.getFullVersion() < ZMQ.makeVersion(4, 0, 0))
+            return;
+
+        final Charset utf8 = Charset.forName("UTF-8");
+        final String endpoint = "tcp://127.0.0.1:5000";
+
+        final byte[] req_pk = DatatypeConverter.parseHexBinary(
+                "BB88471D65E2659B30C55A5321CEBB5AAB2B70A398645C26DCA2B2FCB43FC518");
+        final byte[] req_sk = DatatypeConverter.parseHexBinary(
+                "7BB864B489AFA3671FBE69101F94B38972F24816DFB01B51656B3FEC8DFD0888");
+        final byte[] rep_pk = DatatypeConverter.parseHexBinary(
+                "54FCBA24E93249969316FB617C872BB0C1D1FF14800427C594CBFACF1BC2D652");
+        final byte[] rep_sk = DatatypeConverter.parseHexBinary(
+                "8E0BDD697628B91D8F245587EE95C5B04D48963F79259877B49CD9063AEAD3B7");
+
+        ZMQ.Context context = ZMQ.context(1);
+
+        ZMQ.Socket rep = context.socket(ZMQ.REP);
+        rep.setCurveServer(true);
+        rep.setCurveSecretKey(rep_sk);
+        rep.bind(endpoint);
+
+        ZMQ.Socket req = context.socket(ZMQ.REQ);
+        req.setCurvePublicKey(req_pk);
+        req.setCurveSecretKey(req_sk);
+        req.setCurveServerKey(rep_pk);
+        req.connect(endpoint);
+
+        final String sent = "Hello World";
+        req.send(sent);
+        final String received = rep.recvStr(utf8);
+        assertEquals(sent, received);
+
+        req.close();
+        rep.close();
+        context.term();
+    }
+
+    @Test
+    public void testKeyEncode() {
+        final String expected = "Yne@$w-vo<fVvi]a<NY6T1ed:M$fCG*[IaLV{hID";
+        final String actual = ZMQ.Curve.z85Encode(DatatypeConverter.parseHexBinary(
+                "BB88471D65E2659B30C55A5321CEBB5AAB2B70A398645C26DCA2B2FCB43FC518"));
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testKeyDecode() {
+        final byte[] expected = DatatypeConverter.parseHexBinary(
+                "BB88471D65E2659B30C55A5321CEBB5AAB2B70A398645C26DCA2B2FCB43FC518");
+        final byte[] actual = ZMQ.Curve.z85Decode("Yne@$w-vo<fVvi]a<NY6T1ed:M$fCG*[IaLV{hID");
+        Assert.assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testKeyEncodeDecode() {
+        for (int i = 0; i < 100; i++) {
+            final ZMQ.Curve.KeyPair pair = ZMQ.Curve.generateKeyPair();
+            Assert.assertEquals(pair.publicKey, ZMQ.Curve.z85Encode(ZMQ.Curve.z85Decode(pair.publicKey)));
+            Assert.assertEquals(pair.secretKey, ZMQ.Curve.z85Encode(ZMQ.Curve.z85Decode(pair.secretKey)));
+        }
     }
 }

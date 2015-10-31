@@ -136,7 +136,9 @@ public class ZFrame
         System.arraycopy(this.data, 0, copy, 0, length);
         ZFrame frame = new ZFrame();
         frame.data = copy;
-        frame.buffer = this.buffer.duplicate();
+        if (this.buffer != null) {
+            frame.buffer = this.buffer.duplicate();
+        }
         frame.more = this.more;
         return frame;
     }
@@ -245,8 +247,18 @@ public class ZFrame
      */
     private byte[] recv(Socket socket, int flags)
     {
-        data = socket.recv(flags);
-        more = socket.hasReceiveMore();
+        try {
+            data = socket.recv(flags);
+            more = socket.hasReceiveMore();
+        } catch (ZMQException e) {
+            ZMQ.Error error = ZMQ.Error.findByCode(e.getErrorCode());
+            if (error == ZMQ.Error.ETERM || error == ZMQ.Error.ENOTSOCK) {
+                data = null;
+                more = false;
+            } else {
+                throw e;
+            }
+        }
         return data;
     }
 
@@ -275,17 +287,9 @@ public class ZFrame
     public static ZFrame recvFrame(Socket socket, int flags)
     {
         ZFrame f = new ZFrame();
-        try {
-            f.recv(socket, flags);
-        } catch (ZMQException e) {
-            switch (ZMQ.Error.findByCode(e.getErrorCode())) {
-                case ETERM:
-                case ENOTSOCK:
-                    f = null;
-                    break;
-                default:
-                    throw new ZMQException(e);
-            }
+        byte[] data = f.recv(socket, flags);
+        if (data == null) {
+            f = null;
         }
         return f;
     }
