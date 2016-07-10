@@ -22,12 +22,6 @@ cd ..
 mvn package
 ```
 
-If you hope to install to your local maven, then you should run:
-
-```
-mvn install -Dgpg.skip=true
-```
-
 That installs the native language wrapper layer.
 
 ```mvn install```
@@ -37,6 +31,10 @@ more realistic instructions)
 
 Note that you require a default gpg key (and gpg needs to be installed and available on your
 PATH) to actually sign the library. 
+
+If you'd rather skip the signing step, use
+
+```mvn install -Dgpg.skip=true```
 
 Avoiding JNI
 ------------

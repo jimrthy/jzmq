@@ -382,7 +382,6 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setLongSockopt (JNIEnv *e
                 || (option == ZMQ_MULTICAST_HOPS)
 #endif
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,0,0)
-		|| (option == ZMQ_CURVE_SERVER)
                 || (option == ZMQ_CONFLATE)
                 || (option == ZMQ_PLAIN_SERVER)
                 || (option == ZMQ_IMMEDIATE)
@@ -434,9 +433,6 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setBytesSockopt (JNIEnv *
     case ZMQ_UNSUBSCRIBE:
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,0,0)
     case ZMQ_ZAP_DOMAIN:
-    case ZMQ_CURVE_SECRETKEY:
-    case ZMQ_CURVE_PUBLICKEY:
-    case ZMQ_CURVE_SERVERKEY:
     case ZMQ_PLAIN_USERNAME:
     case ZMQ_PLAIN_PASSWORD:
     case ZMQ_CURVE_PUBLICKEY:
