@@ -327,7 +327,6 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setLongSockopt (JNIEnv *e
     case ZMQ_CONFLATE:
     case ZMQ_PLAIN_SERVER:
     case ZMQ_IMMEDIATE:
-    case ZMQ_CURVE_SERVER:
     case ZMQ_REQ_RELAXED:
     case ZMQ_REQ_CORRELATE:
     case ZMQ_PROBE_ROUTER:
@@ -385,7 +384,6 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setLongSockopt (JNIEnv *e
                 || (option == ZMQ_CONFLATE)
                 || (option == ZMQ_PLAIN_SERVER)
                 || (option == ZMQ_IMMEDIATE)
-		|| (option == ZMQ_CURVE_SERVER)
                 || (option == ZMQ_REQ_RELAXED)
                 || (option == ZMQ_REQ_CORRELATE)
                 || (option == ZMQ_PROBE_ROUTER)
