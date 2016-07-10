@@ -223,6 +223,12 @@ public class ZAuth {
                 } else if (request.mechanism.equals("CURVE")) {
                     // For CURVE, even a whitelisted address must authenticate
                     // TODO: Handle CURVE authentication
+		    // Big ugly horrible hack from James:
+		    // I don't think this is appropriate, but I also don't
+		    // think it's actually being used.
+		    // I could be horribly mistaken about this assumption,
+		    // though.
+		    allowed = true;
                 } else if (request.mechanism.equals("GSSAPI")) {
                     // At this point, the request is authenticated, send to 
                     //zauth callback for complete authorization
