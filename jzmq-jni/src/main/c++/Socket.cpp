@@ -325,7 +325,6 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQ_00024Socket_setLongSockopt (JNIEnv *e
 #endif
 #if ZMQ_VERSION >= ZMQ_MAKE_VERSION(4,0,0)
     case ZMQ_CONFLATE:
-    case ZMQ_CURVE_SERVER:
     case ZMQ_PLAIN_SERVER:
     case ZMQ_IMMEDIATE:
     case ZMQ_REQ_RELAXED:

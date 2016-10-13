@@ -24,7 +24,7 @@
 
 #include "jzmq.hpp"
 #include "org_zeromq_ZMQ.h"
-#include "org_zeromq_ZCurveKeyPair.h"
+#include "org_zeromq_ZMQ_Curve_KeyPair.h"
 #include "util.hpp"
 
 static void *get_socket (JNIEnv *env, jobject obj)

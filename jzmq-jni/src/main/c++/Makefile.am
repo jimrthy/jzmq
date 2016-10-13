@@ -26,7 +26,7 @@ JZMQ_H_FILES = \
 	org_zeromq_ZMQ_PollItem.h \
 	org_zeromq_ZMQ_Poller.h \
 	org_zeromq_ZMQ_Socket.h \
-	org_zeromq_ZMQ_ZCurveKeyPair.h
+	org_zeromq_ZMQ_Curve_KeyPair.h
 
 JZMQ_HPP_FILES = \
 	util.hpp
